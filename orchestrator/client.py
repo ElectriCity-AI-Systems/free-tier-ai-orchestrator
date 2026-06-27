@@ -460,11 +460,34 @@ class OpenAICompatibleProvider(ProviderAdapter):
             "temperature": temperature,
             "max_tokens": max_tokens,
         }
-        data = self._json_request(
-            self.base_url + "/chat/completions",
-            method="POST", body=body, headers=self._headers(),
-        )
-        return self._parse_completion(canonical_model_id(self.name, upstream_model), data)
+        url = self.base_url + "/chat/completions"
+        cid = canonical_model_id(self.name, upstream_model)
+        # Some models reject a custom temperature (OpenAI o-series / GPT-5
+        # reasoning, Kimi k2.7, …) or require max_completion_tokens instead of
+        # max_tokens. Negotiate the parameters and retry rather than dropping the
+        # whole model from the team.
+        for attempt in range(3):
+            try:
+                data = self._json_request(url, method="POST", body=body,
+                                          headers=self._headers())
+                return self._parse_completion(cid, data)
+            except ModelUnavailable as exc:
+                low = str(exc).lower()
+                if attempt == 2:
+                    raise
+                fixed = False
+                if "temperature" in low and "temperature" in body:
+                    body.pop("temperature", None)
+                    fixed = True
+                if (("max_completion_tokens" in low)
+                        or ("max_tokens" in low and ("unsupported" in low
+                                                     or "not supported" in low))):
+                    if "max_tokens" in body:
+                        body["max_completion_tokens"] = body.pop("max_tokens")
+                        fixed = True
+                if not fixed:
+                    raise
+        raise ModelUnavailable("parameter negotiation failed for %s" % cid)
 
     @staticmethod
     def _parse_completion(model: str, data: dict) -> str:

@@ -517,6 +517,37 @@ def _check_login_env_update():
         shutil.rmtree(root, ignore_errors=True)
 
 
+def _check_temperature_adaptation():
+    from .client import ModelUnavailable, OpenAICompatibleProvider
+    owner = _ProviderOwner()
+
+    class _TempPicky(OpenAICompatibleProvider):
+        seen = []
+        def _json_request(self, url, method="GET", body=None, headers=None, timeout=None):
+            _TempPicky.seen.append(dict(body or {}))
+            if "temperature" in (body or {}):
+                raise ModelUnavailable("invalid temperature: only 1 is allowed for this model")
+            return {"choices": [{"message": {"content": "ok"}}]}
+
+    p = _TempPicky(owner, "moonshot", "k", "https://api.example/v1")
+    assert p.chat_once("kimi-k2.7", [{"role": "user", "content": "hi"}], 0.3, 100) == "ok"
+    assert len(_TempPicky.seen) == 2 and "temperature" not in _TempPicky.seen[1]
+
+    class _MaxTokPicky(OpenAICompatibleProvider):
+        seen = []
+        def _json_request(self, url, method="GET", body=None, headers=None, timeout=None):
+            _MaxTokPicky.seen.append(dict(body or {}))
+            if "max_tokens" in (body or {}):
+                raise ModelUnavailable("Unsupported parameter: 'max_tokens' is not "
+                                       "supported; use 'max_completion_tokens'.")
+            return {"choices": [{"message": {"content": "ok2"}}]}
+
+    q = _MaxTokPicky(owner, "openai", "k", "https://api.example/v1")
+    assert q.chat_once("o3", [{"role": "user", "content": "hi"}], 0.3, 100) == "ok2"
+    assert "max_completion_tokens" in _MaxTokPicky.seen[-1] \
+        and "max_tokens" not in _MaxTokPicky.seen[-1]
+
+
 def _check_non_chat_filter():
     from .client import _chatlike_model
     for bad in ("sora-2", "gpt-4o-transcribe", "gpt-realtime", "davinci-002",
@@ -886,6 +917,7 @@ def run_self_tests(ui) -> int:
         ("kimi/moonshot provider wired", _check_moonshot_provider),
         ("login key store (add/replace/remove)", _check_login_env_update),
         ("non-chat model filter", _check_non_chat_filter),
+        ("temperature/param negotiation", _check_temperature_adaptation),
         ("--free-only excludes paid models", _check_free_only),
         ("lenient json (multiline content)", _check_lenient_json),
         ("action normalization", _check_normalize_action),
