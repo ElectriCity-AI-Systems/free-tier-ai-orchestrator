@@ -484,6 +484,9 @@ textarea:focus{border-color:var(--acc);box-shadow:0 0 0 3px rgba(110,168,254,.14
   <div class="spacer"></div>
   <div class="pill"><span class="dot" id="statedot"></span><span id="statetxt">idle</span></div>
   <div class="pill" id="modelpill">…</div>
+  <a class="pill" href="https://www.paypal.com/donate/?hosted_button_id=N4NJ5QYSY3GLC"
+     target="_blank" rel="noopener"
+     style="text-decoration:none;color:#ffb4dd;border-color:rgba(240,143,192,.4)">♥ Support</a>
 </header>
 <main>
   <aside>

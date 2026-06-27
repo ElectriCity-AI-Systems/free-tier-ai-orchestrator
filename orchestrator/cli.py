@@ -48,6 +48,12 @@ def _build_parser() -> argparse.ArgumentParser:
                    help="Launch the graphical web UI in your browser.")
     p.add_argument("--web-port", type=int, default=None,
                    help="Port for the web UI (default 8765).")
+    p.add_argument("--donate", action="store_true",
+                   help="Show the pay-what-you-want donation link.")
+    p.add_argument("--pro", action="store_true",
+                   help="Show PRO supporter status / how to support.")
+    p.add_argument("--activate", default=None, metavar="KEY",
+                   help="Activate a PRO supporter license key (from your donation email).")
     p.add_argument("--list-models", action="store_true",
                    help="List discovered free/free-tier models and exit.")
     p.add_argument("--stats", action="store_true",
@@ -412,6 +418,10 @@ def main(argv=None) -> int:
     if args.self_test:
         from .selftest import run_self_tests
         return run_self_tests(ui)
+
+    if args.donate or args.pro or args.activate is not None:
+        from .pro import cli_handle
+        return cli_handle(args, ui)
 
     if args.godmode_providers:
         ui.plain(format_godmode_catalog())

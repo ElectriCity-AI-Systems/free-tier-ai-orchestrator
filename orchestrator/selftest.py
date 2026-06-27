@@ -536,6 +536,11 @@ def _check_web_server():
         httpd.shutdown()
 
 
+def _check_pro_licenses():
+    from .pro import run_self_tests
+    assert run_self_tests()
+
+
 def _check_audio_mastering_tool():
     if not (shutil.which("ffmpeg") and shutil.which("ffprobe")):
         return
@@ -811,6 +816,7 @@ def run_self_tests(ui) -> int:
         ("consult_models default cap", _check_consult_default_cap),
         ("web ui events + approval", _check_web_events),
         ("web server (http/sse/api)", _check_web_server),
+        ("pro supporter licenses", _check_pro_licenses),
         ("audio mastering tool", _check_audio_mastering_tool),
         ("file undo", _check_undo),
         ("anti-stall loop guard", _check_anti_stall),

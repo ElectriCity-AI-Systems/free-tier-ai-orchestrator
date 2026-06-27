@@ -4,6 +4,10 @@
 > let their **free models and free quotas collaborate** for the best possible
 > *free* resolution of complex tasks.
 
+![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)
+![Python 3.8+](https://img.shields.io/badge/python-3.8%2B-blue.svg)
+[![Donate](https://img.shields.io/badge/Donate-PayPal-00457C.svg?logo=paypal&logoColor=white)](https://www.paypal.com/donate/?hosted_button_id=N4NJ5QYSY3GLC)
+
 An autonomous, **tool-using terminal agent** — a Claude-Code-style CLI (plus a
 graphical web UI) — powered by **free/free-tier AI providers**. You type a goal;
 it plans, reads and writes files, runs shell commands, checks its own work, and
@@ -321,6 +325,25 @@ It runs: **plan → (ensemble of diverse models + judge) → critic → integrat
 verify + refine**, and prints a critic-assessed confidence score.
 
 ---
+
+## 💛 Support / PRO (pay what you want)
+
+This project is free and MIT-licensed — everything works without paying. If it
+saves you time or money, you can support development, **pay what you want**:
+
+[**☕ Donate via PayPal →**](https://www.paypal.com/donate/?hosted_button_id=N4NJ5QYSY3GLC)
+
+Supporters can optionally get a **PRO supporter license** — an honour-system
+thank-you badge (core features stay free for everyone). If the optional license
+service is running, a signed license is emailed to your PayPal address; activate it:
+
+```bash
+ofo --activate <key-from-your-email>
+ofo --pro            # show supporter status
+ofo --donate         # show the donation link
+```
+
+Want to run the automatic license service yourself? See **[PRO.md](PRO.md)**.
 
 ## Project layout
 
