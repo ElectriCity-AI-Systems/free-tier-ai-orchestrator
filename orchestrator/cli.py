@@ -54,6 +54,11 @@ def _build_parser() -> argparse.ArgumentParser:
                    help="Show PRO supporter status / how to support.")
     p.add_argument("--activate", default=None, metavar="KEY",
                    help="Activate a PRO supporter license key (from your donation email).")
+    p.add_argument("--login", nargs="?", const="core", default=None, metavar="PROVIDERS",
+                   help="Set up provider API keys interactively (default: openai, claude, "
+                        "gemini, kimi + openrouter; also --login all or --login openai,gemini).")
+    p.add_argument("--logout", default=None, metavar="PROVIDERS",
+                   help="Remove stored API keys for the given provider(s).")
     p.add_argument("--list-models", action="store_true",
                    help="List discovered free/free-tier models and exit.")
     p.add_argument("--stats", action="store_true",
@@ -422,6 +427,10 @@ def main(argv=None) -> int:
     if args.donate or args.pro or args.activate is not None:
         from .pro import cli_handle
         return cli_handle(args, ui)
+
+    if args.login is not None or args.logout:
+        from .login import handle_login
+        return handle_login(args, ui)
 
     if args.godmode_providers:
         ui.plain(format_godmode_catalog())

@@ -17,22 +17,42 @@ job by itself and makes several models **collaborate**.
 No manual model picking. No paid plan required. Pure Python standard library
 (`rich` is optional, only for nicer output).
 
-### Bring your own free keys
-Create a free key at any of these (one is enough; more = more capacity), then put
-them in `.env` or your environment:
+### Bring your own keys — guided login
+
+```bash
+ofo --login                       # set up OpenAI, Claude, Gemini, Kimi (+ OpenRouter)
+ofo --login openai,gemini         # just some of them   (aliases: claude, kimi, google)
+ofo --login all                   # every supported provider
+ofo --logout openai               # remove a stored key
+```
+
+The wizard opens each provider's key page, takes the key (hidden input) and stores
+it in `~/.config/ofo/.env` (`chmod 600`). Or set the env vars yourself:
 
 | Provider | Get a key | Env var |
 |----------|-----------|---------|
-| OpenRouter (many `:free` models) | https://openrouter.ai/keys | `OPENROUTER_API_KEY` |
+| OpenRouter (gateway, many `:free` models) | https://openrouter.ai/keys | `OPENROUTER_API_KEY` |
+| OpenAI (GPT) | https://platform.openai.com/api-keys | `OPENAI_API_KEY` |
+| Claude (Anthropic) | https://console.anthropic.com/settings/keys | `ANTHROPIC_API_KEY` |
 | Google Gemini (free tier) | https://aistudio.google.com/apikey | `GEMINI_API_KEY` |
+| Kimi (Moonshot) | https://platform.moonshot.ai/console/api-keys | `MOONSHOT_API_KEY` |
+| Perplexity (Sonar) | https://www.perplexity.ai/settings/api | `PERPLEXITY_API_KEY` |
 | Hugging Face | https://huggingface.co/settings/tokens | `HUGGINGFACE_API_KEY` |
 | Together AI | https://api.together.ai/settings/api-keys | `TOGETHER_API_KEY` |
 | Fireworks AI | https://fireworks.ai/account/api-keys | `FIREWORKS_API_KEY` |
 | Replicate | https://replicate.com/account/api-tokens | `REPLICATE_API_TOKEN` |
 
-The orchestrator discovers every free/free-tier model across the providers you've
-keyed, and routes/rotates across them automatically (rate-limit aware), so the
-free quotas add up.
+> **About "OAuth login":** OpenAI, Claude and Kimi do **not** offer a public OAuth
+> flow that lets a third-party app use your *consumer subscription* (ChatGPT Plus /
+> Claude Pro / Kimi) via the API — those are separate products, and the supported
+> way to use them anywhere is an **API key** (each has its own free credits / free
+> tier). Reverse-engineering the web logins violates their ToS and risks account
+> bans, so this tool uses keys. Gemini additionally has a real Google OAuth / Vertex
+> path for advanced setups.
+
+The orchestrator discovers every available model across the providers you've keyed,
+and routes/rotates across them automatically (rate-limit aware), so the free quotas
+add up.
 
 ---
 

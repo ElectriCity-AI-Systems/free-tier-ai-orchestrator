@@ -14,7 +14,7 @@ role + rotate on failure):
 A graphical web UI (``ofo --web``) streams the agent's live activity to the
 browser over Server-Sent Events.
 """
-__version__ = "1.4.0"
+__version__ = "1.5.0"
 
 from .agent import Agent  # noqa: F401
 from .config import Settings  # noqa: F401

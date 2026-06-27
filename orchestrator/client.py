@@ -20,7 +20,7 @@ from typing import Callable, Dict, List, Optional, Sequence, Tuple
 from .config import (ANTHROPIC_BASE_URL, APP_REFERER, APP_TITLE,
                      FIREWORKS_BASE_URL, GEMINI_BASE_URL,
                      HUGGINGFACE_BASE_URL, KEYLESS_PROVIDERS,
-                     OPENAI_BASE_URL, OPENROUTER_BASE_URL,
+                     MOONSHOT_BASE_URL, OPENAI_BASE_URL, OPENROUTER_BASE_URL,
                      PERPLEXITY_BASE_URL, PROVIDER_ENV, PROVIDER_KEY_ENVS,
                      PROVIDER_ORDER, REPLICATE_BASE_URL, Settings,
                      TOGETHER_BASE_URL)
@@ -69,6 +69,7 @@ PROVIDER_BASE_URLS = {
     "together": TOGETHER_BASE_URL,
     "huggingface": HUGGINGFACE_BASE_URL,
     "gemini": GEMINI_BASE_URL,
+    "moonshot": MOONSHOT_BASE_URL,
     "replicate": REPLICATE_BASE_URL,
     "oobabooga": os.environ.get(
         "OOBABOOGA_BASE_URL",
@@ -79,7 +80,7 @@ PROVIDER_BASE_URLS = {
 
 OPENAI_COMPATIBLE = {
     "openrouter", "openai", "fireworks", "together", "huggingface",
-    "oobabooga",
+    "oobabooga", "moonshot",
 }
 
 
@@ -92,6 +93,13 @@ FALLBACK_MODELS: Dict[str, Sequence[Tuple[str, int, str]]] = {
         ("accounts/fireworks/models/llama-v3p3-70b-instruct", 128000, "Llama 3.3 70B Instruct"),
         ("accounts/fireworks/models/qwen3-coder-480b-a35b-instruct", 128000, "Qwen3 Coder"),
         ("accounts/fireworks/models/llama-v3p1-8b-instruct", 128000, "Llama 3.1 8B Instruct"),
+    ),
+    "moonshot": (
+        ("kimi-k2-0905-preview", 262144, "Kimi K2 0905"),
+        ("kimi-k2-turbo-preview", 262144, "Kimi K2 Turbo"),
+        ("moonshot-v1-128k", 131072, "Moonshot v1 128k"),
+        ("moonshot-v1-32k", 32768, "Moonshot v1 32k"),
+        ("kimi-latest", 131072, "Kimi Latest"),
     ),
     "openai": (
         ("gpt-5.5", 400000, "GPT-5.5"),

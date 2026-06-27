@@ -29,6 +29,9 @@ GEMINI_BASE_URL = os.environ.get(
     "GEMINI_BASE_URL", "https://generativelanguage.googleapis.com/v1beta").rstrip("/")
 REPLICATE_BASE_URL = os.environ.get(
     "REPLICATE_BASE_URL", "https://api.replicate.com/v1").rstrip("/")
+# Moonshot / Kimi (OpenAI-compatible). Use api.moonshot.cn for China accounts.
+MOONSHOT_BASE_URL = os.environ.get(
+    "MOONSHOT_BASE_URL", "https://api.moonshot.ai/v1").rstrip("/")
 
 # Sent to OpenRouter for attribution / leaderboard ranking. Harmless.
 APP_REFERER = "https://github.com/local/openrouter-free-orchestrator"
@@ -44,11 +47,12 @@ PROVIDER_KEY_ENVS = {
     "together": "TOGETHER_API_KEY",
     "huggingface": "HUGGINGFACE_API_KEY",
     "gemini": "GEMINI_API_KEY",
+    "moonshot": "MOONSHOT_API_KEY",
     "replicate": "REPLICATE_API_TOKEN",
     "oobabooga": "OOBABOOGA_API_KEY",
 }
 PROVIDER_ORDER = (
-    "openrouter", "openai", "anthropic", "gemini", "perplexity",
+    "openrouter", "openai", "anthropic", "gemini", "perplexity", "moonshot",
     "huggingface", "together", "fireworks", "replicate", "oobabooga",
 )
 KEYLESS_PROVIDERS = ("oobabooga",)

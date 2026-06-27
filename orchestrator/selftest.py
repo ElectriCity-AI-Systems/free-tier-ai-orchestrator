@@ -479,6 +479,44 @@ def _check_consult_default_cap():
     assert "consulted 3 model(s)" in out2, out2
 
 
+def _check_moonshot_provider():
+    from .client import PROVIDER_BASE_URLS, OPENAI_COMPATIBLE, OpenRouterClient
+    from .config import PROVIDER_ORDER, PROVIDER_KEY_ENVS
+    assert "moonshot" in PROVIDER_ORDER, PROVIDER_ORDER
+    assert PROVIDER_BASE_URLS.get("moonshot"), "moonshot base url missing"
+    assert "moonshot" in OPENAI_COMPATIBLE, "moonshot should be OpenAI-compatible"
+    assert PROVIDER_KEY_ENVS["moonshot"] == "MOONSHOT_API_KEY"
+    client = OpenRouterClient(Settings(api_key="", provider_api_keys={"moonshot": "sk-x"}))
+    assert "moonshot" in client.enabled_provider_names(), client.enabled_provider_names()
+
+
+def _check_login_env_update():
+    from . import login
+    root = tempfile.mkdtemp(prefix="ofo_login_")
+    old = os.environ.get("XDG_CONFIG_HOME")
+    try:
+        os.environ["XDG_CONFIG_HOME"] = root
+        # the user's four resolve to canonical provider ids
+        assert login.resolve(["openai", "claude", "gemini", "kimi"]) == \
+            ["openai", "anthropic", "gemini", "moonshot"]
+        login.update_env({"OPENAI_API_KEY": "sk-a", "MOONSHOT_API_KEY": "sk-b"})
+        login.update_env({"OPENAI_API_KEY": "sk-a2", "GEMINI_API_KEY": "AIza-x"})
+        content = open(login.env_path()).read()
+        assert "OPENAI_API_KEY=sk-a2" in content, content
+        assert "OPENAI_API_KEY=sk-a\n" not in content, "old value not replaced cleanly"
+        assert "MOONSHOT_API_KEY=sk-b" in content, "existing key must be preserved"
+        assert "GEMINI_API_KEY=AIza-x" in content, "new key must be added"
+        login.remove_env(["OPENAI_API_KEY"])
+        content = open(login.env_path()).read()
+        assert "OPENAI_API_KEY" not in content and "MOONSHOT_API_KEY=sk-b" in content
+    finally:
+        if old is None:
+            os.environ.pop("XDG_CONFIG_HOME", None)
+        else:
+            os.environ["XDG_CONFIG_HOME"] = old
+        shutil.rmtree(root, ignore_errors=True)
+
+
 def _check_web_events():
     from .web import EventBus, WebUI
     bus = EventBus()
@@ -805,6 +843,8 @@ def run_self_tests(ui) -> int:
         ("godmode provider catalog", _check_godmode_provider_catalog),
         ("model rotation on 429", _check_model_rotation),
         ("provider failover (404 -> working)", _check_provider_failover),
+        ("kimi/moonshot provider wired", _check_moonshot_provider),
+        ("login key store (add/replace/remove)", _check_login_env_update),
         ("lenient json (multiline content)", _check_lenient_json),
         ("action normalization", _check_normalize_action),
         ("response cache", _check_response_cache),
