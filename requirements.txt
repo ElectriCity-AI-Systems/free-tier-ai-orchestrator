@@ -1,0 +1,4 @@
+# The orchestrator runs on the Python standard library alone (Python >= 3.8).
+# `rich` is OPTIONAL and only improves the terminal output (tables/panels/colour).
+# Install it for the nicer UI:
+rich>=13.0

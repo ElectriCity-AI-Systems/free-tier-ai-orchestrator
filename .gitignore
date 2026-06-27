@@ -1,0 +1,10 @@
+.env
+__pycache__/
+*.pyc
+.venv/
+venv/
+# packaging artifacts
+build/
+dist/
+*.egg-info/
+.eggs/

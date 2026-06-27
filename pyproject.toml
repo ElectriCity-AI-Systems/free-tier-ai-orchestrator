@@ -1,0 +1,22 @@
+[build-system]
+requires = ["setuptools>=61"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "free-tier-ai-orchestrator"
+version = "1.4.0"
+description = "Autonomous, tool-using terminal agent powered by free / free-tier AI models."
+readme = "README.md"
+requires-python = ">=3.8"
+license = { text = "MIT" }
+keywords = ["ai", "agent", "cli", "openrouter", "free-tier", "llm", "orchestrator"]
+dependencies = []  # core runs on the standard library alone
+
+[project.optional-dependencies]
+rich = ["rich>=13.0"]  # nicer terminal output (optional)
+
+[project.scripts]
+ofo = "orchestrator.cli:main"
+
+[tool.setuptools]
+packages = ["orchestrator"]
