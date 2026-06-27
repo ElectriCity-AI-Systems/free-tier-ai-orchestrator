@@ -517,6 +517,46 @@ def _check_login_env_update():
         shutil.rmtree(root, ignore_errors=True)
 
 
+def _check_non_chat_filter():
+    from .client import _chatlike_model
+    for bad in ("sora-2", "gpt-4o-transcribe", "gpt-realtime", "davinci-002",
+                "babbage-002", "o3-deep-research", "gemini-2.5-flash-image",
+                "google/lyria-3-pro-preview", "gpt-3.5-turbo-instruct",
+                "text-embedding-3-large", "dall-e-3", "whisper-1"):
+        assert not _chatlike_model(bad, {}), "must reject non-chat model: " + bad
+    for good in ("gpt-5.5", "claude-opus-4-8", "qwen/qwen3-coder", "gpt-4o-mini",
+                 "kimi-k2.7-code", "moonshot-v1-128k", "deepseek-r1",
+                 "gpt-4o-search-preview", "meta-llama/llama-3.3-70b-instruct"):
+        assert _chatlike_model(good, {}), "must accept chat model: " + good
+
+
+def _check_free_only():
+    catalogue = [
+        {"id": "deepseek/deepseek-r1:free", "provider": "openrouter",
+         "upstream_id": "deepseek/deepseek-r1:free", "free_tier": True,
+         "free_kind": "zero", "context_length": 64000,
+         "pricing": {"prompt": "0", "completion": "0"}},
+        {"id": "gemini:models/gemini-2.5-flash", "provider": "gemini",
+         "upstream_id": "models/gemini-2.5-flash", "free_tier": True,
+         "free_kind": "free_api", "context_length": 1000000},
+        {"id": "openai:gpt-5.5", "provider": "openai", "upstream_id": "gpt-5.5",
+         "free_tier": True, "free_kind": "credits", "context_length": 0},
+    ]
+
+    class _Cat:
+        def list_models(self):
+            return list(catalogue)
+
+    reg = ModelRegistry(Settings(api_key="x", free_only=True))
+    reg.load(_Cat())
+    kinds = {m.free_kind for m in reg.models}
+    assert "credits" not in kinds, [m.id for m in reg.models]
+    assert "zero" in kinds and "free_api" in kinds, kinds
+    reg2 = ModelRegistry(Settings(api_key="x", free_only=False))
+    reg2.load(_Cat())
+    assert any(m.free_kind == "credits" for m in reg2.models), "paid kept by default"
+
+
 def _check_web_events():
     from .web import EventBus, WebUI
     bus = EventBus()
@@ -845,6 +885,8 @@ def run_self_tests(ui) -> int:
         ("provider failover (404 -> working)", _check_provider_failover),
         ("kimi/moonshot provider wired", _check_moonshot_provider),
         ("login key store (add/replace/remove)", _check_login_env_update),
+        ("non-chat model filter", _check_non_chat_filter),
+        ("--free-only excludes paid models", _check_free_only),
         ("lenient json (multiline content)", _check_lenient_json),
         ("action normalization", _check_normalize_action),
         ("response cache", _check_response_cache),

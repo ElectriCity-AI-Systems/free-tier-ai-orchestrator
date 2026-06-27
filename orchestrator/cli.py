@@ -125,6 +125,8 @@ def _build_parser() -> argparse.ArgumentParser:
                    help="Don't read/write the cross-session model leaderboard.")
     s.add_argument("--providers", default=None,
                    help="Comma-separated provider allow-list (default: all keyed providers).")
+    s.add_argument("--free-only", action="store_true",
+                   help="Use ONLY zero-price / free-API-tier models — never spend paid credits.")
 
     o = p.add_argument_group("output")
     o.add_argument("-o", "--output", default=None, help="Write the final result to a file.")
@@ -193,6 +195,8 @@ def _settings_from_args(args) -> Settings:
         s.use_cache = False
     if args.no_stats:
         s.enable_stats = False
+    if args.free_only:
+        s.free_only = True
     # output
     if args.max_tokens is not None:
         s.max_tokens = max(256, args.max_tokens)

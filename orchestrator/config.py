@@ -117,6 +117,7 @@ class Settings:
     provider_api_keys: Dict[str, str] = field(default_factory=dict)
     enabled_providers: str = ""       # comma-separated, empty means all keyed providers
     provider_model_limit: int = 160   # per provider; keeps huge catalogues manageable
+    free_only: bool = False           # only zero-price / free-API-tier models (no paid credits)
 
     # --- networking / safety rails ---
     max_concurrency: int = 3          # simultaneous in-flight requests

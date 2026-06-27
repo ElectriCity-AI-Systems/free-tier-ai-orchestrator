@@ -183,6 +183,8 @@ class ModelRegistry:
         for m in catalogue:
             if not _is_free(m):
                 continue
+            if self.s.free_only and m.get("free_kind", "zero") == "credits":
+                continue  # skip credit-billed (paid) models in free-only mode
             mid = m.get("id", "")
             if not mid:
                 continue

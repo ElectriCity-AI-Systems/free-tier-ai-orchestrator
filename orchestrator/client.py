@@ -253,16 +253,24 @@ def _compact_text(value) -> str:
     return str(value)
 
 
+# Substrings that mark a model as NOT a normal text-chat model (audio, image,
+# video, music, embeddings, base-completion, realtime, deep-research, …). Keeps
+# the chat orchestrator from picking models that would just fail or cost money.
+_NON_CHAT_HINTS = (
+    "embed", "rerank", "reranker", "whisper", "tts", "audio", "speech",
+    "transcribe", "transcription", "translate", "translation", "realtime",
+    "image", "dall-e", "vision", "clip", "sdxl", "stable-diffusion", "diffusion",
+    "flux", "imagen", "sora", "veo", "lyria", "music", "video", "moderation",
+    "guard", "ocr", "davinci", "babbage", "deep-research", "computer-use",
+    "turbo-instruct", "upscal",
+)
+
+
 def _chatlike_model(model_id: str, meta: dict) -> bool:
     mid = (model_id or "").lower()
     task = str(meta.get("task") or meta.get("pipeline_tag") or meta.get("type")
                or meta.get("model_type") or "").lower()
-    bad = (
-        "embed", "rerank", "whisper", "tts", "audio", "image", "vision",
-        "clip", "sdxl", "stable-diffusion", "flux", "imagen", "moderation",
-        "guard", "ocr", "speech", "transcription", "translation",
-    )
-    if any(x in mid for x in bad):
+    if any(x in mid for x in _NON_CHAT_HINTS):
         return False
     if task and not any(x in task for x in (
         "chat", "text", "language", "conversational", "generation", "completion"
@@ -612,7 +620,7 @@ class GeminiProvider(ProviderAdapter):
         methods = meta.get("supportedGenerationMethods") or []
         if "generateContent" not in methods:
             return False
-        if any(x in mid for x in ("embedding", "imagen", "veo", "tts", "aqa", "live")):
+        if "aqa" in mid or "-live" in mid or any(x in mid for x in _NON_CHAT_HINTS):
             return False
         # Gemini's free API tier is model-specific. Keep the default conservative
         # and route to Flash-family models unless the user overrides GEMINI_MODELS.
